@@ -5,7 +5,7 @@ import { Achievements } from "@/components/achievements";
 import { Plant, Achievement } from "@shared/schema";
 
 export default function Profile() {
-  const { id } = useParams();
+  const { id = "1" } = useParams();
   const userId = parseInt(id);
 
   const { data: plants = [] } = useQuery<Plant[]>({

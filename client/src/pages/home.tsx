@@ -18,7 +18,22 @@ export default function Home() {
       const response = await apiRequest("POST", "/api/identify", { image });
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Create the plant in storage
+      const plantData = {
+        userId: 1, // Using a default user for now
+        name: data.name,
+        scientificName: data.scientificName,
+        imageUrl: selectedImage!,
+        identificationData: data,
+        description: data.description
+      };
+
+      await apiRequest("POST", "/api/plants", plantData);
+
+      // Invalidate the plants query to refresh the collection
+      queryClient.invalidateQueries({ queryKey: ["/api/plants", 1] });
+
       setShowTrophy(true);
       setTimeout(() => setShowTrophy(false), 3000);
       toast({
