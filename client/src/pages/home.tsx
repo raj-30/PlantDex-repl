@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ImageUpload } from "@/components/image-upload";
 import { Button } from "@/components/ui/button";
-import { Leaf, Trophy } from "lucide-react";
+import { Leaf, Trophy, Flower } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "wouter";
 
 export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -46,9 +47,19 @@ export default function Home() {
               🌱
             </motion.span>
           </h1>
-          <p className="text-xl text-green-600">
+          <p className="text-xl text-green-600 mb-6">
             Discover and Collect Amazing Plants!
           </p>
+          <Link href="/profile/1">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-green-600 text-green-700 hover:bg-green-50"
+            >
+              <Flower className="mr-2 h-5 w-5" />
+              View My Collection
+            </Button>
+          </Link>
         </motion.div>
 
         <div className="space-y-6">
