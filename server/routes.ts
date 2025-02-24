@@ -57,6 +57,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete plant from collection
+  app.delete("/api/plants/:plantId", async (req, res) => {
+    try {
+      const plantId = parseInt(req.params.plantId);
+      await storage.deletePlant(plantId);
+      res.json({ message: "Plant deleted successfully" });
+    } catch (error) {
+      console.error('Error deleting plant:', error);
+      res.status(500).json({ message: "Failed to delete plant" });
+    }
+  });
+
   // Get user achievements
   app.get("/api/achievements/:userId", async (req, res) => {
     try {

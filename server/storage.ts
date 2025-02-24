@@ -13,6 +13,7 @@ export interface IStorage {
   createPlant(plant: InsertPlant): Promise<Plant>;
   getPlantsByUserId(userId: number): Promise<Plant[]>;
   getPlant(id: number): Promise<Plant | undefined>;
+  deletePlant(id: number): Promise<void>;
 
   // Achievement operations
   createAchievement(achievement: InsertAchievement): Promise<Achievement>;
@@ -64,6 +65,10 @@ export class DatabaseStorage implements IStorage {
   async getPlant(id: number): Promise<Plant | undefined> {
     const [plant] = await db.select().from(plants).where(eq(plants.id, id));
     return plant;
+  }
+
+  async deletePlant(id: number): Promise<void> {
+    await db.delete(plants).where(eq(plants.id, id));
   }
 
   async createAchievement(achievement: InsertAchievement): Promise<Achievement> {

@@ -1,12 +1,32 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import { Plant } from "@shared/schema";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface PlantCardProps {
   plant: Plant;
 }
 
 export function PlantCard({ plant }: PlantCardProps) {
+  const { toast } = useToast();
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/plants/${plant.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/${plant.userId}`] });
+      toast({
+        title: "Plant Removed",
+        description: "The plant has been removed from your collection",
+      });
+    },
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -16,12 +36,21 @@ export function PlantCard({ plant }: PlantCardProps) {
     >
       <Card className="overflow-hidden bg-gradient-to-b from-green-50 to-white border-green-100">
         <CardHeader className="p-0">
-          <div className="aspect-square w-full overflow-hidden">
+          <div className="aspect-square w-full overflow-hidden relative">
             <img 
               src={plant.imageUrl} 
               alt={plant.name}
               className="w-full h-full object-cover"
             />
+            <Button
+              variant="destructive"
+              size="sm"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="p-4">
