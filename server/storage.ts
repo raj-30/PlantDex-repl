@@ -1,4 +1,6 @@
 import { users, plants, achievements, type User, type InsertUser, type Plant, type InsertPlant, type Achievement, type InsertAchievement } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -17,79 +19,64 @@ export interface IStorage {
   getAchievementsByUserId(userId: number): Promise<Achievement[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private plants: Map<number, Plant>;
-  private achievements: Map<number, Achievement>;
-  private currentId: { users: number; plants: number; achievements: number };
-
-  constructor() {
-    this.users = new Map();
-    this.plants = new Map();
-    this.achievements = new Map();
-    this.currentId = { users: 1, plants: 1, achievements: 1 };
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId.users++;
-    const user: User = { ...insertUser, id, points: 0 };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async updateUserPoints(id: number, points: number): Promise<User> {
-    const user = await this.getUser(id);
-    if (!user) throw new Error("User not found");
-    const updatedUser = { ...user, points };
-    this.users.set(id, updatedUser);
-    return updatedUser;
+    const [user] = await db
+      .update(users)
+      .set({ points })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
   }
 
   async createPlant(insertPlant: InsertPlant): Promise<Plant> {
-    const id = this.currentId.plants++;
-    const plant: Plant = {
-      ...insertPlant,
-      id,
-      dateAdded: new Date().toISOString(),
-      identificationData: insertPlant.identificationData || null,
-      description: insertPlant.description || null
-    };
-    this.plants.set(id, plant);
+    const [plant] = await db
+      .insert(plants)
+      .values({
+        ...insertPlant,
+        dateAdded: new Date().toISOString(),
+        identificationData: insertPlant.identificationData || null,
+        description: insertPlant.description || null,
+      })
+      .returning();
     return plant;
   }
 
   async getPlantsByUserId(userId: number): Promise<Plant[]> {
-    return Array.from(this.plants.values()).filter(
-      (plant) => plant.userId === userId
-    );
+    return db.select().from(plants).where(eq(plants.userId, userId));
   }
 
   async getPlant(id: number): Promise<Plant | undefined> {
-    return this.plants.get(id);
+    const [plant] = await db.select().from(plants).where(eq(plants.id, id));
+    return plant;
   }
 
-  async createAchievement(insertAchievement: InsertAchievement): Promise<Achievement> {
-    const id = this.currentId.achievements++;
-    const achievement: Achievement = { ...insertAchievement, id };
-    this.achievements.set(id, achievement);
-    return achievement;
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const [newAchievement] = await db
+      .insert(achievements)
+      .values(achievement)
+      .returning();
+    return newAchievement;
   }
 
   async getAchievementsByUserId(userId: number): Promise<Achievement[]> {
-    return Array.from(this.achievements.values()).filter(
-      (achievement) => achievement.userId === userId
-    );
+    return db.select().from(achievements).where(eq(achievements.userId, userId));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
