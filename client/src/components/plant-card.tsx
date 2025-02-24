@@ -36,7 +36,7 @@ export function PlantCard({ plant }: PlantCardProps) {
     >
       <Card className="overflow-hidden bg-gradient-to-b from-green-50 to-white border-green-100">
         <CardHeader className="p-0">
-          <div className="aspect-square w-full overflow-hidden relative">
+          <div className="aspect-square w-full overflow-hidden relative group">
             <img 
               src={plant.imageUrl} 
               alt={plant.name}
@@ -45,11 +45,12 @@ export function PlantCard({ plant }: PlantCardProps) {
             <Button
               variant="destructive"
               size="sm"
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute bottom-2 right-2"
               onClick={() => deleteMutation.mutate()}
               disabled={deleteMutation.isPending}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 mr-1" />
+              Remove
             </Button>
           </div>
         </CardHeader>
