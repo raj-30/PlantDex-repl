@@ -57,10 +57,12 @@ export class MemStorage implements IStorage {
 
   async createPlant(insertPlant: InsertPlant): Promise<Plant> {
     const id = this.currentId.plants++;
-    const plant: Plant = { 
-      ...insertPlant, 
-      id, 
-      dateAdded: new Date().toISOString() 
+    const plant: Plant = {
+      ...insertPlant,
+      id,
+      dateAdded: new Date().toISOString(),
+      identificationData: insertPlant.identificationData || null,
+      description: insertPlant.description || null
     };
     this.plants.set(id, plant);
     return plant;
