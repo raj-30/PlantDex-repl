@@ -32,7 +32,7 @@ export default function Home() {
       await apiRequest("POST", "/api/plants", plantData);
 
       // Invalidate the plants query to refresh the collection
-      queryClient.invalidateQueries({ queryKey: ["/api/plants", 1] });
+      queryClient.invalidateQueries({ queryKey: [`/api/plants/1`] });
 
       setShowTrophy(true);
       setTimeout(() => setShowTrophy(false), 3000);

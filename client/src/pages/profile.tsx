@@ -9,11 +9,11 @@ export default function Profile() {
   const userId = parseInt(id);
 
   const { data: plants = [] } = useQuery<Plant[]>({
-    queryKey: ["/api/plants", userId],
+    queryKey: [`/api/plants/${userId}`],
   });
 
   const { data: achievements = [] } = useQuery<Achievement[]>({
-    queryKey: ["/api/achievements", userId],
+    queryKey: [`/api/achievements/${userId}`],
   });
 
   return (
